@@ -11,7 +11,7 @@ import UIKit
 /**
 This is the class that contains all basic methods and outlets that you need to work with JLChatVC file from JLChat.storyboard
 */
-public class JLChatViewController: UIViewController {
+open class JLChatViewController: UIViewController {
 
     /**
      * This is your tableView with all changes that you need to work with it as chat.
@@ -46,11 +46,11 @@ public class JLChatViewController: UIViewController {
     /**
      The block that contains the code necessary to start and stop the animation of the typing view
      */
-    private var animationBlock:((startAnimation:Bool)->())?
+    private var animationBlock:((_ startAnimation:Bool)->())?
     
     private var reloadAddedMessages:Bool = false
     
-    override public func viewDidLoad() {
+    override open func viewDidLoad() {
                 
         super.viewDidLoad()
         
@@ -64,17 +64,17 @@ public class JLChatViewController: UIViewController {
         
     }
     
-    public override func viewWillAppear(animated: Bool) {
+    open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         if let tabController = self.tabBarController{
-            tabController.tabBar.hidden = true
+            tabController.tabBar.isHidden = true
         }
         
     
     }
     
-    public override func viewDidAppear(animated: Bool) {
+    open override func viewDidAppear(_ animated: Bool) {
 
         super.viewDidAppear(animated)
         
@@ -87,28 +87,28 @@ public class JLChatViewController: UIViewController {
     
     
     
-    public override func viewWillDisappear(animated: Bool) {
+    open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         if let tabController = self.tabBarController{
-            tabController.tabBar.hidden = false
+            tabController.tabBar.isHidden = false
         }
 
     }
     
-    public override func viewDidDisappear(animated: Bool) {
+    open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         reloadAddedMessages = true
     }
     
-    public override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+    open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         
-        super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+        super.viewWillTransition(to: size, with: coordinator)
         self.chatTableView.reloadAddedMessages()
         
     }
     
-    override public func didReceiveMemoryWarning() {
+    override open func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
@@ -123,7 +123,7 @@ public class JLChatViewController: UIViewController {
     
     */
     
-    public func loadTypingViewWithCustomView(customView:UIView?,animationBlock:((startAnimation:Bool)->())?){
+    open func loadTypingViewWithCustomView(customView:UIView?,animationBlock:((_ startAnimation:Bool)->())?){
         
         var view:UIView!
         
@@ -136,7 +136,7 @@ public class JLChatViewController: UIViewController {
             
             self.animationBlock = { (startAnimation) -> () in
                 if startAnimation{
-                    (view as! JLUserTypingView).startAnimation(0.8)
+                    (view as! JLUserTypingView).startAnimation(speed: 0.8)
                 }
                 else{
                     (view as! JLUserTypingView).stopAnimation()
@@ -151,19 +151,19 @@ public class JLChatViewController: UIViewController {
         self.userTypingViewWidth.constant = view.frame.width
         self.userTypingViewHeight.constant = view.frame.height
         
-        let topDist = NSLayoutConstraint(item: self.userTypingView, attribute: NSLayoutAttribute.Top, relatedBy: .Equal, toItem: view, attribute:NSLayoutAttribute.Top, multiplier: 1, constant: 0)
+        let topDist = NSLayoutConstraint(item: self.userTypingView, attribute: NSLayoutAttribute.top, relatedBy: .equal, toItem: view, attribute:NSLayoutAttribute.top, multiplier: 1, constant: 0)
         
         self.userTypingView.addConstraint(topDist)
         
-        let bottomDist = NSLayoutConstraint(item: self.userTypingView, attribute: NSLayoutAttribute.Bottom, relatedBy: .Equal, toItem: view, attribute:NSLayoutAttribute.Bottom, multiplier: 1, constant: 0)
+        let bottomDist = NSLayoutConstraint(item: self.userTypingView, attribute: NSLayoutAttribute.bottom, relatedBy: .equal, toItem: view, attribute:NSLayoutAttribute.bottom, multiplier: 1, constant: 0)
         
         self.userTypingView.addConstraint(bottomDist)
         
-        let leftDist = NSLayoutConstraint(item: self.userTypingView, attribute: NSLayoutAttribute.Leading, relatedBy: .Equal, toItem: view, attribute:NSLayoutAttribute.Leading, multiplier: 1, constant: 0)
+        let leftDist = NSLayoutConstraint(item: self.userTypingView, attribute: NSLayoutAttribute.leading, relatedBy: .equal, toItem: view, attribute:NSLayoutAttribute.leading, multiplier: 1, constant: 0)
         
         self.userTypingView.addConstraint(leftDist)
         
-        let rightDist = NSLayoutConstraint(item: self.userTypingView, attribute: NSLayoutAttribute.Trailing, relatedBy: .Equal, toItem: view, attribute:NSLayoutAttribute.Trailing, multiplier: 1, constant: 0)
+        let rightDist = NSLayoutConstraint(item: self.userTypingView, attribute: NSLayoutAttribute.trailing, relatedBy: .equal, toItem: view, attribute:NSLayoutAttribute.trailing, multiplier: 1, constant: 0)
         
         self.userTypingView.addConstraint(rightDist)
         
@@ -174,26 +174,26 @@ public class JLChatViewController: UIViewController {
     /**
      This method show the UserTypingView and start the animation
      */
-    public func showUserTypingView(){
+    open func showUserTypingView(){
         
         //self.chatTableView.scrollChatToBottom(true,basedOnLastRow: nil)
         if let block = animationBlock{
-            block(startAnimation: true)
+            block(true)
             
         }
         
         if userTypingView.alpha == 0{
             self.userTypingDistToToolBar.constant = 0
-            self.chatTableView.updateInsetsBottom(self.chatTableView.contentInset.bottom + self.userTypingView.frame.height,animated: true,duration: 0)
+            self.chatTableView.updateInsetsBottom(bottom: self.chatTableView.contentInset.bottom + self.userTypingView.frame.height,animated: true,duration: 0)
             
             //self.chatTableViewDistToBottom.constant = self.userTypingView.frame.height
-            UIView.animateWithDuration(0.3, animations: { () -> Void in
+            UIView.animate(withDuration: 0.3, animations: { () -> Void in
                 self.userTypingView.alpha = 1
                 self.view.layoutIfNeeded()
                 
             }) { (finished) -> Void in
                 if finished{
-                    self.chatTableView.scrollChatToBottom(true,basedOnLastRow: nil)
+                    self.chatTableView.scrollChatToBottom(animated: true,basedOnLastRow: nil)
                 }
             }
         }
@@ -202,21 +202,21 @@ public class JLChatViewController: UIViewController {
     /**
      This method hide the UserTypingView and stop the animation
      */
-    public func hideUserTypingView(completion:(()->())?){
+    open func hideUserTypingView(completion:(()->())?){
         
         if let block = animationBlock{
-            block(startAnimation: false)
+            block(false)
         }
         
         if userTypingView.alpha == 1{
             self.userTypingDistToToolBar.constant = -self.userTypingView.frame.height
-            self.chatTableView.updateInsetsBottom(self.chatTableView.contentInset.bottom - self.userTypingView.frame.height,animated: true,duration: 0.3)
+            self.chatTableView.updateInsetsBottom(bottom: self.chatTableView.contentInset.bottom - self.userTypingView.frame.height,animated: true,duration: 0.3)
         }
         
         //self.chatTableView.scrollChatToBottom(true, basedOnLastRow: nil)
         
         //self.chatTableViewDistToBottom.constant = 0
-        UIView.animateWithDuration(0.4, animations: { () -> Void in
+        UIView.animate(withDuration: 0.4, animations: { () -> Void in
             
             self.userTypingView.alpha = 0
             self.view.layoutIfNeeded()
@@ -236,36 +236,36 @@ public class JLChatViewController: UIViewController {
     
     func registerKeyBoardNotifications(){
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector:#selector(JLChatViewController.showkeyBoardTarget(_:)), name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector:#selector(JLChatViewController.hideKeyBoardTarget(_:)), name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(JLChatViewController.showkeyBoardTarget(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(JLChatViewController.hideKeyBoardTarget(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
     }
     
     
-    func showkeyBoardTarget(notification:NSNotification){
+    @objc func showkeyBoardTarget(_ notification:NSNotification){
         
         
         
         let info = notification.userInfo as! [String:AnyObject]
         
-        let keyBoardFrame = info[UIKeyboardFrameEndUserInfoKey]?.CGRectValue
+        let keyBoardFrame = info[UIKeyboardFrameEndUserInfoKey]?.cgRectValue
         
         let keyBoadHeight = keyBoardFrame!.height
         
         self.toolBarDistToBottom.constant = keyBoadHeight
         
-        UIView.animateWithDuration(0.2) { () -> Void in
+        UIView.animate(withDuration: 0.2) { () -> Void in
             self.view.layoutIfNeeded()
         }
     }
     
     
     
-    func hideKeyBoardTarget(notification:NSNotification){
+    @objc func hideKeyBoardTarget(_ notification:NSNotification){
         
         self.toolBarDistToBottom.constant = 0
         
-        UIView.animateWithDuration(0.2) { () -> Void in
+        UIView.animate(withDuration: 0.2) { () -> Void in
             self.view.layoutIfNeeded()
         }
     }

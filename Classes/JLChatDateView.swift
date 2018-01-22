@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class JLChatDateView: UITableViewHeaderFooterView {
+open class JLChatDateView: UITableViewHeaderFooterView {
 
     @IBOutlet public weak var dateLabel: UILabel!
     /*

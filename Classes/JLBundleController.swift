@@ -11,7 +11,7 @@ import UIKit
 /**
  * This class helps you to get this framework bundle, an instance of JLChat.storyboard and an instance of JLChatViewController.
 */
-public class JLBundleController {
+open class JLBundleController {
     
     /**
      * The storyboard file that contains the JLChatViewController
@@ -22,11 +22,11 @@ public class JLBundleController {
     /**
      * Use it when you have to load something from this framework bundle.
      */
-    public class func getBundle()->NSBundle?{
-        let podBundle = NSBundle(forClass: JLChatViewController.classForCoder())
+    public class func getBundle()->Bundle?{
+        let podBundle = Bundle(for: JLChatViewController.classForCoder())
         
-        if let bundleURL = podBundle.URLForResource("JLChatViewController", withExtension: "bundle") {
-            if let assetsBundle = NSBundle(URL: bundleURL) {
+        if let bundleURL = podBundle.url(forResource: "JLChatViewController", withExtension: "bundle") {
+            if let assetsBundle = Bundle(url: bundleURL) {
                 return assetsBundle
             }
             return nil
@@ -38,11 +38,11 @@ public class JLBundleController {
      * Load the JLChat.storyboard from the bundle of this framework and save its instance on jLChatSb
      */
     public class func loadJLChatStoryboard(){
-        let podBundle = NSBundle(forClass: JLChatViewController.classForCoder())
+        let podBundle = Bundle(for: JLChatViewController.classForCoder())
         
-        if let bundleURL = podBundle.URLForResource("JLChatViewController", withExtension: "bundle") {
+        if let bundleURL = podBundle.url(forResource: "JLChatViewController", withExtension: "bundle") {
             
-            if let assetsBundle = NSBundle(URL: bundleURL) {
+            if let assetsBundle = Bundle(url: bundleURL) {
                 
                 let storyboard = UIStoryboard(name: "JLChat", bundle: assetsBundle)
                 

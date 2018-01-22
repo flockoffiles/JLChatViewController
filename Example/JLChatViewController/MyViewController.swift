@@ -16,7 +16,7 @@ enum ID:String{//used only for the example
 }
 
 
-class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,JLChatMessagesMenuDelegate,ChatDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate {
+class MyViewController:JLChatViewController, ChatDataSource, ChatToolBarDelegate, JLChatMessagesMenuDelegate, ChatDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     var messagesBySection:[[JLMessage]] = [[JLMessage]]()//newer messages are on last sections and on a section newer message is on last position
         
@@ -33,7 +33,7 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
         
         loadMessages()
         configChat()
-        loadTypingViewWithCustomView(nil, animationBlock: nil)
+        loadTypingViewWithCustomView(customView: nil, animationBlock: nil)
         configToolBar()
         addAnswerMeBarButton()
         
@@ -63,7 +63,7 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
     //used only for the example
     func loadOldMessages(){
         
-        self.chatTableView.addOldMessages(21) { 
+        self.chatTableView.addOldMessages(quant: 21) {
             
             var lastOlderDate:NSDate! = NSDate()
             if self.messagesBySection.count > 0{
@@ -79,32 +79,28 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
                 
                 let oldMessage = JLMessage(text: "teste velhas\(i)", senderID: ID.myID.rawValue, messageDate: NSDate(timeIntervalSince1970: lastOlderDate.timeIntervalSince1970 - 3*3600), senderImage: UIImage(named: "imagem"))
                 
-                self.addOnMessagesBySectionOldMessage(oldMessage)
+                self.addOnMessagesBySectionOldMessage(oldMessage: oldMessage)
             }
             
             let oldMessage = JLMessage(text: "teste  sdas'dbfoasbdfbsdfasdkf;basd;fkbask;fbkdsfbksbfs;kdjfb;kasdbjfkasbdfk;asdbf;bsd;fkbsad;kbfsjkfb;absd;kfbas;dkfb;skdbf;asdfjabksdbfas;dfakdsbf;sdkfb;asjdkfb;skbfjkbs;dfk;asdjfskdfbjasf;sdjf;bskdbfa;djfdkf agora vai , so testando", senderID: ID.myID.rawValue, messageDate: NSDate(timeIntervalSince1970: lastOlderDate.timeIntervalSince1970 - 3*3600), senderImage: UIImage(named: "imagem"))
             
-            self.addOnMessagesBySectionOldMessage(oldMessage)
+            self.addOnMessagesBySectionOldMessage(oldMessage: oldMessage)
             
         }
     }
     
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
     //MARK: Simulating receiving message methods
     
     func addAnswerMeBarButton(){
-        let button = UIBarButtonItem(title: "answer me", style: UIBarButtonItemStyle.Plain, target: self, action:#selector(MyViewController.answerMeAction(_:)))
+        let button = UIBarButtonItem(title: "answer me", style: UIBarButtonItemStyle.plain, target: self, action:#selector(MyViewController.answerMeAction(_:)))
         
         self.navigationItem.rightBarButtonItem = button
     }
     
-    func sortOtherUserNewMessage()->[NSIndexPath]{
-        var indexPaths:[NSIndexPath] = [NSIndexPath]()
+    @discardableResult
+    func sortOtherUserNewMessage()->[IndexPath]{
+        var indexPaths:[IndexPath] = [IndexPath]()
         
         let sort = arc4random()%6
         
@@ -161,21 +157,20 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
         return indexPaths
     }
     
-    func answerMeAction(sender:AnyObject){
+    @objc func answerMeAction(_ sender:AnyObject){
         
         self.showUserTypingView()
-        let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(1 * Double(NSEC_PER_SEC)))
        
-        dispatch_after(delayTime, dispatch_get_main_queue()) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             self.hideUserTypingView { () -> () in
                 
                 //let indexPaths = self.sortOtherUserNewMessage()
                 
-                self.chatTableView.addNewMessages(1, changesHandler: { 
+                self.chatTableView.addNewMessages(quant: 1, changesHandler: {
                     self.sortOtherUserNewMessage()
                     }, completionHandler: { 
                         if let section = self.removeUnreadHeaderIfNecessary(){
-                            self.chatTableView.removeChatSection(section,messagesOfSection: [])
+                            self.chatTableView.removeChatSection(section: section,messagesOfSection: [])
                         }
                 })
             }
@@ -207,7 +202,7 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
     /**
      Return the message at indexPath
     */
-    func messageRelatedToIndexPath(indexPath:NSIndexPath)->JLMessage?{
+    func messageRelatedToIndexPath(indexPath:IndexPath)->JLMessage?{
         if messagesBySection.count <= indexPath.section || messagesBySection[indexPath.section].count <= indexPath.row{
             return nil
         }
@@ -222,7 +217,7 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
             let lastPos = messagesBySection.last!.count - 1
             if lastPos > 0{
                 if messagesBySection.last![lastPos - 1].messageRead == false  && messagesBySection.last!.last!.messageRead == true{
-                    for section in (0..<messagesBySection.count).reverse(){
+                    for section in (0..<messagesBySection.count).reversed(){
                         messagesBySection[section].forEach({ (message) in
                             message.messageRead = true
                         })
@@ -230,7 +225,7 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
                 }
             }
             else if messagesBySection.last!.last!.messageRead == true{
-                for section in (0..<messagesBySection.count).reverse(){
+                for section in (0..<messagesBySection.count).reversed(){
                     messagesBySection[section].forEach({ (message) in
                         message.messageRead = true
                     })
@@ -246,7 +241,7 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
     func numberOfUnreadMessages()->Int{
         var quant = 0
         if messagesBySection.last!.count > 0 && messagesBySection.last!.last!.messageRead == false{
-            for section in (0..<messagesBySection.count).reverse(){
+            for section in (0..<messagesBySection.count).reversed(){
                 if self.messagesBySection[section].count == 0{
                     break
                 }
@@ -269,24 +264,24 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
     /**
      Remove the message at indexPath from 'messagesBySection'
     */
-    func removeMessageRelatedToIndexPath(indexPath:NSIndexPath){
+    func removeMessageRelatedToIndexPath(indexPath:IndexPath){
 
         if self.messagesBySection[indexPath.section].count == 1{
             var relatedMessages = [JLMessage]()
             relatedMessages.append(self.messagesBySection[indexPath.section][indexPath.row])
             
-            self.messagesBySection.removeAtIndex(indexPath.section)
+            self.messagesBySection.remove(at: indexPath.section)
             
             if let section = removeUnreadHeaderIfNecessary(){
-                self.chatTableView.removeMessagesCells(nil, AndSections: [indexPath.section,section],WithRelatedMessages: relatedMessages)
+                self.chatTableView.removeMessagesCells(rowsIndexPath: nil, AndSections: [indexPath.section,section],WithRelatedMessages: relatedMessages)
             }
             else{
-                self.chatTableView.removeChatSection(indexPath.section,messagesOfSection: relatedMessages)
+                self.chatTableView.removeChatSection(section: indexPath.section,messagesOfSection: relatedMessages)
             }
         }
         else{
-            let message = self.messagesBySection[indexPath.section].removeAtIndex(indexPath.row)
-            self.chatTableView.removeMessageCellAtIndexPath(indexPath, relatedMessage: message)
+            let message = self.messagesBySection[indexPath.section].remove(at: indexPath.row)
+            self.chatTableView.removeMessageCellAtIndexPath(indexPath: indexPath, relatedMessage: message)
         }
 
     }
@@ -296,7 +291,8 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
      This method adds a new message on 'messagesBySection' variable at the end of the newer section
      - returns : IndexPath of new message
      */
-    func addOnMessagesBySectionNewMessage(newMessage:JLMessage)->NSIndexPath{
+    @discardableResult
+    func addOnMessagesBySectionNewMessage(_ newMessage:JLMessage)->IndexPath{
         
         var addedUnreadHeader:Bool = false
         
@@ -326,7 +322,7 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
             if newerMessageDate - olderMessageDate <= 2.0/*hours*/{
                 messagesBySection[messagesBySection.count - 1].append(newMessage)
                 
-                return NSIndexPath(forRow: messagesBySection.last!.count - 1, inSection: messagesBySection.count - 1)
+                return IndexPath(row: messagesBySection.last!.count - 1, section: messagesBySection.count - 1)
             }
             else{//belongs to new section
                 messagesBySection.append([newMessage])//creates and add on section
@@ -336,14 +332,15 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
             messagesBySection.append([newMessage])//creates and add on section
         }
         
-        return NSIndexPath(forRow: 0, inSection: messagesBySection.count - 1)
+        return IndexPath(row: 0, section: messagesBySection.count - 1)
 
     }
     
     /**
      This method adds an old message on 'messagesBySection' variable at the begining of older section
      */
-    func addOnMessagesBySectionOldMessage(oldMessage:JLMessage)->NSIndexPath{
+    @discardableResult
+    func addOnMessagesBySectionOldMessage(oldMessage:JLMessage)->IndexPath{
         if messagesBySection.count > 0{
             
             let olderMessageDate = oldMessage.messageDate.timeIntervalSince1970/3600.0
@@ -363,23 +360,23 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
              OBS: a value too small might cause problems with performance
              */
             if newerMessageDate - olderMessageDate <= 2.0/*hours*/{
-                messagesBySection[0].insert(oldMessage, atIndex: 0)
+                messagesBySection[0].insert(oldMessage, at: 0)
             }
             else{//belongs to new section
-                messagesBySection.insert([oldMessage], atIndex: 0)//creates and add on section
+                messagesBySection.insert([oldMessage], at: 0)//creates and add on section
             }
             
         }
         else{
             messagesBySection.append([oldMessage])//creates and add on section
         }
-        return NSIndexPath(forRow: 0, inSection: 0)
+        return IndexPath(row: 0, section: 0)
 
     }
 
     
     func isThereUnreadSection()->Bool{
-        for messages in messagesBySection.reverse(){
+        for messages in messagesBySection.reversed(){
             if messages.count == 0{
                 return true
             }
@@ -413,9 +410,9 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
             else{
                 if lastSection.last!.messageRead == true{//if the last one is true so there is not unread messages
                     //search and remove the unread header view
-                    for i in (0..<self.messagesBySection.count - 1).reverse(){
+                    for i in (0..<self.messagesBySection.count - 1).reversed(){
                         if self.messagesBySection[i].count == 0{
-                            self.messagesBySection.removeAtIndex(i)
+                            self.messagesBySection.remove(at: i)
                             return i
                         }
                     }
@@ -453,38 +450,38 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
     }
     func configDefault(){
         //2-start
-        JLChatAppearence.configIncomingMessages(nil, showIncomingSenderImage: true, incomingTextColor: nil)
+        JLChatAppearence.configIncomingMessages(incomingBubbleColor: nil, showIncomingSenderImage: true, incomingTextColor: nil)
         
-        JLChatAppearence.configOutgoingMessages(nil, showOutgoingSenderImage: true, outgoingTextColor: nil)
+        JLChatAppearence.configOutgoingMessages(outgoingBubbleColor: nil, showOutgoingSenderImage: true, outgoingTextColor: nil)
         //2-end
         
-        JLChatAppearence.configErrorButton(nil, selectedStateImage: nil)
+        JLChatAppearence.configErrorButton(normalStateImage: nil, selectedStateImage: nil)
     }
     
     func bubbleConfigOne(){
         //2-start
-        JLChatAppearence.configIncomingMessages(UIColor(red: 52/255, green: 152/255, blue: 219/255, alpha: 1), showIncomingSenderImage: true, incomingTextColor: UIColor.whiteColor())
+        JLChatAppearence.configIncomingMessages(incomingBubbleColor: UIColor(red: 52/255, green: 152/255, blue: 219/255, alpha: 1), showIncomingSenderImage: true, incomingTextColor: UIColor.white)
         
-        JLChatAppearence.configOutgoingMessages(UIColor(red: 189/255, green: 195/255, blue: 199/255, alpha: 1), showOutgoingSenderImage: false, outgoingTextColor: UIColor.whiteColor())
+        JLChatAppearence.configOutgoingMessages(outgoingBubbleColor: UIColor(red: 189/255, green: 195/255, blue: 199/255, alpha: 1), showOutgoingSenderImage: false, outgoingTextColor: UIColor.white)
         //2-end
         
-        JLChatAppearence.configSenderImage(nil, senderImageCornerRadius: nil, senderImageBackgroundColor: nil, senderImageDefaultImage: UIImage(named: "userImage(By Madebyoliver)"))
+        JLChatAppearence.configSenderImage(senderImageSize: nil, senderImageCornerRadius: nil, senderImageBackgroundColor: nil, senderImageDefaultImage: UIImage(named: "userImage(By Madebyoliver)"))
         
-        JLChatAppearence.configChatFont(UIFont(name: "Futura", size: 16)!)
+        JLChatAppearence.configChatFont(font: UIFont(name: "Futura", size: 16)!)
         
-        JLChatAppearence.configErrorButton(nil, selectedStateImage: nil)
+        JLChatAppearence.configErrorButton(normalStateImage: nil, selectedStateImage: nil)
     }
     
     func bubbleConfigTwo(){
         //Custom 1-start
-        JLChatAppearence.configIncomingMessages(WithCustomBubbleImage: UIImage(named: "custom-incomingBubble"), customBubbleInsets: UIEdgeInsets(top: 14, left: 14, bottom: 14, right: 14), bubbleImageMask: UIImage(named: "custom-incomingBubbleMask"), bubbleMaskInsets: UIEdgeInsets(top: 14, left: 14, bottom: 14, right: 14), incomingBubbleColor: UIColor(red: 231/255, green: 76/255, blue: 60/255, alpha: 1), showIncomingSenderImage: true, incomingTextColor: UIColor.whiteColor())
+        JLChatAppearence.configIncomingMessages(WithCustomBubbleImage: UIImage(named: "custom-incomingBubble"), customBubbleInsets: UIEdgeInsets(top: 14, left: 14, bottom: 14, right: 14), bubbleImageMask: UIImage(named: "custom-incomingBubbleMask"), bubbleMaskInsets: UIEdgeInsets(top: 14, left: 14, bottom: 14, right: 14), incomingBubbleColor: UIColor(red: 231/255, green: 76/255, blue: 60/255, alpha: 1), showIncomingSenderImage: true, incomingTextColor: UIColor.white)
         
         JLChatAppearence.configOutgoingMessages(WithCustomBubbleImage: UIImage(named: "custom-outgoingBubble"), customBubbleInsets: UIEdgeInsets(top: 14, left: 14, bottom: 14, right: 14), bubbleImageMask: UIImage(named: "custom-outgoingBubbleMask"), bubbleMaskInsets: UIEdgeInsets(top: 14, left: 14, bottom: 14, right: 14), outgoingBubbleColor: nil, showOutgoingSenderImage: false, outgoingTextColor: nil)
         
-        JLChatAppearence.configAligment(5, vertivalDistBetweenImgBottom_And_BubbleBottom: 10)
+        JLChatAppearence.configAligment(horizontalDistBetweenImg_And_Bubble: 5, vertivalDistBetweenImgBottom_And_BubbleBottom: 10)
         
         
-        JLChatAppearence.configErrorButton(nil, selectedStateImage: nil)
+        JLChatAppearence.configErrorButton(normalStateImage: nil, selectedStateImage: nil)
 
     }
     
@@ -494,25 +491,25 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
         
         JLChatAppearence.configOutgoingMessages(WithCustomBubbleImage: UIImage(named: "custom-outgoingBubble_2"), customBubbleInsets: UIEdgeInsets(top: 3, left: 3, bottom: 10, right: 7), bubbleImageMask: UIImage(named: "custom-outgoingBubbleMask_2"), bubbleMaskInsets: UIEdgeInsets(top: 3, left: 3, bottom: 10, right: 7), outgoingBubbleColor: nil, showOutgoingSenderImage: false, outgoingTextColor: nil)
         
-        JLChatAppearence.configAligment(5, vertivalDistBetweenImgBottom_And_BubbleBottom: 10)
+        JLChatAppearence.configAligment(horizontalDistBetweenImg_And_Bubble: 5, vertivalDistBetweenImgBottom_And_BubbleBottom: 10)
         
         JLChatAppearence.configTextAlignmentOnBubble(IncomingMessTextAlig: UIEdgeInsets(top: 8, left: 10, bottom: 13, right: 8), AndOutgoingMessTextAlig: UIEdgeInsets(top: 8, left: 8, bottom: 13, right: 10))
         //Custom 2-end
         
-        JLChatAppearence.configErrorButton(nil, selectedStateImage: nil)
+        JLChatAppearence.configErrorButton(normalStateImage: nil, selectedStateImage: nil)
 
     }
     
     
     func registerCustomCells(){
         
-        self.chatTableView.registerNib(UINib(nibName: "OutgoingProductMessageCell", bundle: NSBundle.mainBundle()), forCellReuseIdentifier: "outgoingProductCell")
+        self.chatTableView.register(UINib(nibName: "OutgoingProductMessageCell", bundle: Bundle.main), forCellReuseIdentifier: "outgoingProductCell")
         
-        self.chatTableView.registerNib(UINib(nibName: "IncomingProductMessageCell", bundle: NSBundle.mainBundle()), forCellReuseIdentifier: "incomingProductCell")
+        self.chatTableView.register(UINib(nibName: "IncomingProductMessageCell", bundle: Bundle.main), forCellReuseIdentifier: "incomingProductCell")
 
-        self.chatTableView.registerNib(UINib(nibName: "CustomChatDateView", bundle:NSBundle.mainBundle()), forHeaderFooterViewReuseIdentifier: "CustomDateView")
+        self.chatTableView.register(UINib(nibName: "CustomChatDateView", bundle:Bundle.main), forHeaderFooterViewReuseIdentifier: "CustomDateView")
         
-        self.chatTableView.registerNib(UINib(nibName: "UnreadMessHeaderView", bundle:NSBundle.mainBundle()), forHeaderFooterViewReuseIdentifier: "UnreadView")
+        self.chatTableView.register(UINib(nibName: "UnreadMessHeaderView", bundle:Bundle.main), forHeaderFooterViewReuseIdentifier: "UnreadView")
 
     }
   
@@ -536,26 +533,25 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
     }
     
     func jlChatNumberOfMessagesInSection(section: Int) -> Int {
-        return numberOfMessagesRelatedToSection(section)
+        return numberOfMessagesRelatedToSection(section: section)
     }
     
-    func jlChatMessageAtIndexPath(indexPath: NSIndexPath) -> JLMessage? {
-        return messageRelatedToIndexPath(indexPath)
+    func jlChatMessageAtIndexPath(indexPath: IndexPath) -> JLMessage? {
+        return messageRelatedToIndexPath(indexPath: indexPath)
     }
     
-    func jlChat(chat: JLChatTableView, MessageCellForRowAtIndexPath indexPath: NSIndexPath) -> JLChatMessageCell {
+    func jlChat(chat: JLChatTableView, MessageCellForRowAtIndexPath indexPath: IndexPath) -> JLChatMessageCell {
         
-        let mess = chatTableView.chatMessageForRowAtIndexPath(indexPath)
+        let mess = chatTableView.chatMessageForRowAtIndexPath(indexPath: indexPath)
         
         if mess is JLImageMessageCell{
-            if let message = messageRelatedToIndexPath(indexPath) where message.senderID == ID.otherID.rawValue{
+            if let message = messageRelatedToIndexPath(indexPath: indexPath), message.senderID == ID.otherID.rawValue{
                 //Its here just to simulate the interval of loading the image
-                let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC)))
-                dispatch_after(delayTime, dispatch_get_main_queue()) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     
                     let imageMess = mess as! JLImageMessageCell
                     
-                    imageMess.addImage(UIImage(named: "imagem2")!)
+                    imageMess.addImage(image: UIImage(named: "imagem2")!)
                     
                     message.relatedImage = UIImage(named: "imagem2")!
                     
@@ -583,16 +579,16 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
     }
     
     
-    func chat(chat: JLChatTableView, CustomMessageCellForRowAtIndexPath indexPath: NSIndexPath) -> JLChatMessageCell {
+    func chat(chat: JLChatTableView, CustomMessageCellForRowAtIndexPath indexPath: IndexPath) -> JLChatMessageCell {
         
-        let message = self.messageRelatedToIndexPath(indexPath)!
+        let message = self.messageRelatedToIndexPath(indexPath: indexPath)!
         
         var cell:JLChatMessageCell!
         if message.senderID == self.chatTableView.myID{
-            cell = self.chatTableView.dequeueReusableCellWithIdentifier("outgoingProductCell") as! ProductMessageCell
+            cell = self.chatTableView.dequeueReusableCell(withIdentifier: "outgoingProductCell") as! ProductMessageCell
         }
         else{
-            cell = self.chatTableView.dequeueReusableCellWithIdentifier("incomingProductCell") as! ProductMessageCell
+            cell = self.chatTableView.dequeueReusableCell(withIdentifier: "incomingProductCell") as! ProductMessageCell
             
         }
         
@@ -609,8 +605,8 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
 
     func jlChatCustomHeaderInSection(section: Int) -> UIView? {
         
-        if numberOfMessagesRelatedToSection(section) == 0{//unread header view
-            if let view = self.chatTableView.dequeueReusableHeaderFooterViewWithIdentifier("UnreadView") as? UnreadMessHeaderView{
+        if numberOfMessagesRelatedToSection(section: section) == 0{//unread header view
+            if let view = self.chatTableView.dequeueReusableHeaderFooterView(withIdentifier: "UnreadView") as? UnreadMessHeaderView{
                 let quant = numberOfUnreadMessages()
                 if quant > 0{
                     view.numberOfMessLabel.text = "\(quant) unread \(quant > 1 ? "messages": "message")"
@@ -623,9 +619,9 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
             }
         }
         else{
-            if let view = self.chatTableView.dequeueReusableHeaderFooterViewWithIdentifier("CustomDateView") as? CustomChatDateView{
+            if let view = self.chatTableView.dequeueReusableHeaderFooterView(withIdentifier: "CustomDateView") as? CustomChatDateView{
                 view.dateLabel.text = nil
-                if let firstMessageOfSection = self.messageRelatedToIndexPath(NSIndexPath(forRow: 0, inSection: section)){
+                if let firstMessageOfSection = self.messageRelatedToIndexPath(indexPath: IndexPath(row: 0, section: section)){
                     view.dateLabel.text = firstMessageOfSection.generateStringFromDate()
 
                 }
@@ -641,7 +637,7 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
     }
     
     func jlChatHeightForCustomHeaderInSection(section: Int) -> CGFloat {
-        if self.numberOfMessagesRelatedToSection(section) == 0{//unread section
+        if self.numberOfMessagesRelatedToSection(section: section) == 0{//unread section
             return 25
         }
         return 21
@@ -652,8 +648,7 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
     
     func loadOlderMessages() {
         
-        let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(5 * Double(NSEC_PER_SEC)))
-        dispatch_after(delayTime, dispatch_get_main_queue()) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
        
             self.loadOldMessages()
             
@@ -662,14 +657,14 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
     }
     
   
-    func didTapMessageAtIndexPath(indexPath: NSIndexPath) {
+    func didTapMessageAtIndexPath(indexPath: IndexPath) {
         print("tocou na mensagem")
         
     }
     
     //MARK: - Messages menu delegate methods
     
-    func shouldShowMenuItemForCellAtIndexPath(title: String, indexPath: NSIndexPath) -> Bool {
+    func shouldShowMenuItemForCellAtIndexPath(title: String, indexPath: IndexPath) -> Bool {
         
         if title == "Deletar"{
             return true
@@ -677,7 +672,7 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
         
         else if title == "Enviar novamente"{
 
-            if let message = self.messageRelatedToIndexPath(indexPath){
+            if let message = self.messageRelatedToIndexPath(indexPath: indexPath){
                 if message.messageStatus == MessageSendStatus.ErrorToSend{
                     return true
                 }
@@ -694,67 +689,67 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
         return "Enviar novamente"
     }
     
-    func performDeleteActionForCellAtIndexPath(indexPath: NSIndexPath) {
-        self.removeMessageRelatedToIndexPath(indexPath)
+    func performDeleteActionForCellAtIndexPath(indexPath: IndexPath) {
+        self.removeMessageRelatedToIndexPath(indexPath: indexPath)
 
     }
     
-    func performSendActionForCellAtIndexPath(indexPath: NSIndexPath) {
+    func performSendActionForCellAtIndexPath(indexPath: IndexPath) {
         
-        let message =  self.messageRelatedToIndexPath(indexPath)!
+        let message =  self.messageRelatedToIndexPath(indexPath: indexPath)!
         
-        message.updateMessageSendStatus(MessageSendStatus.Sent)
+        message.updateMessageSendStatus(newStatus: MessageSendStatus.Sent)
 
-        self.chatTableView.updateMessageStatusOfCellAtIndexPath(indexPath, message: message)
+        self.chatTableView.updateMessageStatusOfCellAtIndexPath(indexPath: indexPath, message: message)
     }
     
     //MARK: - ChatToolBar methods
     
     func configToolBar(){
-        toolBar.configToolInputText(UIFont(name: "Helvetica", size: 16)!, textColor: UIColor.blackColor(), placeHolder: "Mensagem")
+        toolBar.configToolInputText(font: UIFont(name: "Helvetica", size: 16)!, textColor: UIColor.black, placeHolder: "Mensagem")
         
         toolBar.toolBarDelegate = self
         
         toolBar.toolBarFrameDelegate = self.chatTableView
         
-        toolBar.configLeftButton(nil, image: UIImage(named: "paperclip-icon"))
-        toolBar.configRightButton("send", image:nil)
+        toolBar.configLeftButton(title: nil, image: UIImage(named: "paperclip-icon"))
+        toolBar.configRightButton(title: "send", image:nil)
 
         
     }
     
     func didTapLeftButton() {
         
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: UIAlertControllerStyle.ActionSheet)
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: UIAlertControllerStyle.actionSheet)
         
-        let galleryButton = UIAlertAction(title: "Gallery", style: UIAlertActionStyle.Default) { (action) in
+        let galleryButton = UIAlertAction(title: "Gallery", style: UIAlertActionStyle.default) { (action) in
             //se ainda nao tiver um arquivo adicionado adiciona um
-            self.pickerController.getImageFromGallery(self, allowsEditing: true)
+            self.pickerController.getImageFromGallery(viewController: self, allowsEditing: true)
         }
         
-        let cameraButton = UIAlertAction(title: "Camera", style: UIAlertActionStyle.Default) { (action) in
+        let cameraButton = UIAlertAction(title: "Camera", style: UIAlertActionStyle.default) { (action) in
             //se ainda nao tiver um arquivo adicionado adiciona um
-            self.pickerController.getImageFromCamera(self, captureMode: UIImagePickerControllerCameraCaptureMode.Photo, allowsEditing: true)
+            self.pickerController.getImageFromCamera(viewController: self, captureMode: UIImagePickerControllerCameraCaptureMode.photo, allowsEditing: true)
         }
 
         
-        let productFileButton = UIAlertAction(title: "Product", style: UIAlertActionStyle.Default) { (action) in
+        let productFileButton = UIAlertAction(title: "Product", style: UIAlertActionStyle.default) { (action) in
             //se ainda nao tiver um arquivo adicionado adiciona um
             
             self.addedFile = ProductMessage(senderID: self.chatTableView.myID, messageDate: NSDate(), senderImage: UIImage(named: "imagem"), text: "What a good makeup!!!", relatedImage: UIImage(named: "imagem")!, productPrice: nil)
             
-            self.toolBar.inputText.addFile(JLFile(title: "Product", image: UIImage(named: "imagem")))
+            self.toolBar.inputText.addFile(file: JLFile(title: "Product", image: UIImage(named: "imagem")))
 
         }
         
-        let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel,handler: nil)
+        let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel,handler: nil)
         
         alertController.addAction(galleryButton)
         alertController.addAction(cameraButton)
         alertController.addAction(productFileButton)
         alertController.addAction(cancel)
 
-        self.presentViewController(alertController, animated: true, completion: nil)
+        self.present(alertController, animated: true, completion: nil)
 
     }
     
@@ -791,13 +786,13 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
             
         }
 
-        self.chatTableView.addNewMessages(quant, changesHandler: {
+        self.chatTableView.addNewMessages(quant: quant, changesHandler: {
             for message in newMessages{
                 self.addOnMessagesBySectionNewMessage(message)
             }
             }, completionHandler: {
                 if let section = self.removeUnreadHeaderIfNecessary(){
-                    self.chatTableView.removeChatSection(section,messagesOfSection: [])
+                    self.chatTableView.removeChatSection(section: section,messagesOfSection: [])
                 }
         })
         
@@ -810,19 +805,19 @@ class MyViewController:JLChatViewController,ChatDataSource,ChatToolBarDelegate,J
         self.pickerController.delegate = self
     }
     
-    func imagePickerController(picker: UIImagePickerController,didFinishPickingMediaWithInfo info: [String : AnyObject]){
+    private func imagePickerController(picker: UIImagePickerController,didFinishPickingMediaWithInfo info: [String : AnyObject]){
         
-        self.addedFile = pickerController.getEditedSelectedImageFrom(info)
+        self.addedFile = pickerController.getEditedSelectedImageFrom(info: info)
         
-        picker.dismissViewControllerAnimated(true, completion: nil)
+        picker.dismiss(animated: true, completion: nil)
         
-        self.toolBar.inputText.addFile(JLFile(title: "Image", image: (addedFile as! UIImage)))
+        self.toolBar.inputText.addFile(file: JLFile(title: "Image", image: (addedFile as! UIImage)))
         
         
         
     }
-    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
-        picker.dismissViewControllerAnimated(true, completion: nil)
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true, completion: nil)
         
     }
     

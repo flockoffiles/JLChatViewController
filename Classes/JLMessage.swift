@@ -26,7 +26,7 @@ public enum MessageSendStatus:Int{
 }
 
 
-public class JLMessage: NSObject {
+open class JLMessage: NSObject {
 
     /**
      The id of the one that sent the message.
@@ -110,22 +110,22 @@ public class JLMessage: NSObject {
     /**
      Use this method to update messageStatus.
     */
-    public func updateMessageSendStatus(newStatus:MessageSendStatus){
+    open func updateMessageSendStatus(newStatus:MessageSendStatus){
         self.messageStatus = newStatus
     }
     
     /**
      this method gives you the formatted string to be shown on the top of the messageCell, almost never you will need to call this method.
     */
-    public func generateStringFromDate()->String{
+    open func generateStringFromDate()->String{
         
-        let dateFormatter = NSDateFormatter()
+        let dateFormatter = DateFormatter()
         dateFormatter.doesRelativeDateFormatting = true
         
-        dateFormatter.dateStyle = NSDateFormatterStyle.MediumStyle
-        dateFormatter.timeStyle = NSDateFormatterStyle.ShortStyle
+        dateFormatter.dateStyle = DateFormatter.Style.medium
+        dateFormatter.timeStyle = DateFormatter.Style.short
         
-        return dateFormatter.stringFromDate(self.messageDate)
+        return dateFormatter.string(from: self.messageDate as Date)
     }
 }
 

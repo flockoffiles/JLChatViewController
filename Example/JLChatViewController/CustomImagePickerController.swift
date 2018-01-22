@@ -14,7 +14,7 @@ class CustomImagePickerController: UIImagePickerController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationBar.tintColor = UIColor.whiteColor()
+        self.navigationBar.tintColor = UIColor.white
         
         // Do any additional setup after loading the view.
     }
@@ -29,8 +29,8 @@ class CustomImagePickerController: UIImagePickerController {
     func getImageFromGallery(viewController:UIViewController,allowsEditing:Bool){
         self.allowsEditing = allowsEditing
         
-        self.sourceType = .PhotoLibrary
-        viewController.presentViewController(self, animated: true, completion: nil)
+        self.sourceType = .photoLibrary
+        viewController.present(self, animated: true, completion: nil)
         
         //self.modalPresentationStyle = .Popover
         //viewController.presentViewController(self,animated: true, completion: nil)//4
@@ -39,10 +39,10 @@ class CustomImagePickerController: UIImagePickerController {
     
     func getImageFromCamera(viewController:UIViewController,captureMode:UIImagePickerControllerCameraCaptureMode,allowsEditing:Bool){
         self.allowsEditing = allowsEditing
-        self.sourceType = UIImagePickerControllerSourceType.Camera
+        self.sourceType = UIImagePickerControllerSourceType.camera
         self.cameraCaptureMode = captureMode
         //self.modalPresentationStyle = .FullScreen
-        viewController.presentViewController(self,animated: true,completion: nil)
+        viewController.present(self,animated: true,completion: nil)
     }
     
     
@@ -66,7 +66,7 @@ class CustomImagePickerController: UIImagePickerController {
             return editedImage
         }
         
-        return getOriginalSelectedImageFrom(info)
+        return getOriginalSelectedImageFrom(info: info)
     }
     
     func getMediaTypeFrom(info:[String:AnyObject])->String{

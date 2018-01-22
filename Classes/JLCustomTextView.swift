@@ -21,7 +21,7 @@ protocol FileDelegate{
 
 
 
-public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
+open class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
 
     
     @IBInspectable var placeHolderText:String! = ""{
@@ -46,13 +46,13 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
    
     var fileDelegate:FileDelegate? //a delegate to notify when some file is added to it
     
-    override public var text:String!{
+    override open var text:String!{
         didSet{
-            showPlaceHolder(!thereIsSomeText())
+            showPlaceHolder(show: !thereIsSomeText())
         }
     }
     
-    override public var font:UIFont?{
+    override open var font:UIFont?{
         didSet{
             
             if placeHolder != nil {
@@ -67,7 +67,7 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
         super.init(frame: frame, textContainer: textContainer)
         configCornerRadius()
 
-        self.initPlaceHolder(CGPoint(x:self.contentInset.left, y:self.contentInset.top), size: CGSize(width: 20, height: 10), text: "")
+        self.initPlaceHolder(position: CGPoint(x:self.contentInset.left, y:self.contentInset.top), size: CGSize(width: 20, height: 10), text: "")
         
         self.initFileIndicator()
 
@@ -82,7 +82,7 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
         configCornerRadius()
 
 
-        self.initPlaceHolder(CGPoint(x:self.contentInset.left, y:self.contentInset.top), size: CGSize(width: 20, height: 10), text: "")
+        self.initPlaceHolder(position: CGPoint(x:self.contentInset.left, y:self.contentInset.top), size: CGSize(width: 20, height: 10), text: "")
 
         self.initFileIndicator()
 
@@ -93,9 +93,9 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
 
     }
     
-    public override func intrinsicContentSize() -> CGSize {
+    open override var intrinsicContentSize: CGSize {
         
-        return super.intrinsicContentSize()
+        return super.intrinsicContentSize
         
     }
     
@@ -104,7 +104,7 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
         self.layer.masksToBounds = true
         self.layer.cornerRadius = 6
         self.layer.borderWidth = 0.5
-        self.layer.borderColor = UIColor.grayColor().CGColor
+        self.layer.borderColor = UIColor.gray.cgColor
     }
     
     
@@ -118,9 +118,9 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
      
     - returns : true if there is some text and false if there is not text
     */
-    public func thereIsSomeText()->Bool{
+    open func thereIsSomeText()->Bool{
         
-        for char in self.text.characters{
+        for char in self.text {
             if char != " " && char != "\n"{
                 return true
             }
@@ -133,21 +133,21 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
      Use this method for you know if there is some character.
      - returns : true if there is some character and false if there is not
      */
-    public func thereIsSomeChar()->Bool{
-        return self.text.characters.count > 0
+    open func thereIsSomeChar()->Bool{
+        return self.text.count > 0
     }
     
     /**
      Reset the textView for its default state.
     */
     func resetTextView(){
-        self.scrollEnabled = false
+        self.isScrollEnabled = false
         self.text = nil
         self.removeFile()
 
     }
     
-    override public func paste(sender: AnyObject?) {
+    override open func paste(_ sender: Any?) {
         
         super.paste(sender)
              
@@ -168,7 +168,7 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
     Add a indicator of file added with 'JLFile' informations
     - parameter file: The 'JLFile' containing the informations
     */
-    public func addFile(file:JLFile){
+    open func addFile(file:JLFile){
         //caso o valor antigo de fileAddedState for true quer dizer que ja havia algo adicionado entao nao precisa ajeitar o textinsets
         let correctEdges:Bool = !fileAddedState
         
@@ -176,35 +176,35 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
         
         fileDelegate?.fileAdded()
         
-        self.fileIndicatorView.addFileInformations(file)
+        self.fileIndicatorView.addFileInformations(file: file)
         
         fileIndicatorViewHeight.constant = fileIndicatorViewHeightValue
         
         
        
         
-        UIView.animateWithDuration(0.2, delay: 0, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
+        UIView.animate(withDuration: 0.2, delay: 0, options: UIViewAnimationOptions.curveEaseIn, animations: { () -> Void in
             
             self.layoutIfNeeded()
             
 
             }) { (finished) -> Void in
-                var a = self.text
+                var a = self.text ?? ""
                 
-                a = a.stringByAppendingString(" ")
+                a = a + " "
                 
                 self.text = a
                 
-                self.text = String(self.text.characters.dropLast())
+                self.text = String(self.text.dropLast())
                 
                 if correctEdges{
-                    self.correctEdgesForFile(self.fileIndicatorViewHeightValue)
+                    self.correctEdgesForFile(increaseAtTop: self.fileIndicatorViewHeightValue)
                 }
 
         }
         
-        UIView.animateWithDuration(0.4, delay: 0.3, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
-            self.showPlaceHolder(false)
+        UIView.animate(withDuration: 0.4, delay: 0.3, options: UIViewAnimationOptions.curveEaseIn, animations: { () -> Void in
+            self.showPlaceHolder(show: false)
 
             self.fileIndicatorView.alpha = 1
 
@@ -219,7 +219,7 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
     /**
     Remove the indicator of file added
     */
-    public func removeFile(){
+    open func removeFile(){
         
         if fileAddedState{
             fileAddedState = false
@@ -229,25 +229,25 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
             fileIndicatorViewHeight.constant = 0
             
             
-            UIView.animateWithDuration(0.2, delay: 0, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
+            UIView.animate(withDuration: 0.2, delay: 0, options: UIViewAnimationOptions.curveEaseIn, animations: { () -> Void in
                 self.fileIndicatorView.alpha = 0
                 
                 }, completion: nil)
             
             
-            UIView.animateWithDuration(0.2, delay: 0, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
+            UIView.animate(withDuration: 0.2, delay: 0, options: UIViewAnimationOptions.curveEaseIn, animations: { () -> Void in
                 self.layoutIfNeeded()
                 self.fileIndicatorView.layoutIfNeeded()
                 }) { (finished) -> Void in
-                    var a = self.text
+                    var a = self.text ?? ""
                     
-                    a = a.stringByAppendingString(" ")
+                    a = a + " "
                     
                     self.text = a
                     
-                    self.text = String(self.text.characters.dropLast())
+                    self.text = String(self.text.dropLast())
                     
-                    self.correctEdgesForFile(-self.fileIndicatorViewHeightValue)
+                    self.correctEdgesForFile(increaseAtTop: -self.fileIndicatorViewHeightValue)
                     
             }
 
@@ -281,18 +281,18 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
         
         //constraints
         
-        fileIndicatorViewHeight = NSLayoutConstraint(item: fileIndicatorView, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: nil, attribute: NSLayoutAttribute.NotAnAttribute, multiplier: 1, constant: 0)
+        fileIndicatorViewHeight = NSLayoutConstraint(item: fileIndicatorView, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.equal, toItem: nil, attribute: NSLayoutAttribute.notAnAttribute, multiplier: 1, constant: 0)
         fileIndicatorView.addConstraint(fileIndicatorViewHeight)
         
-        let leadingAlignmentConstraint = NSLayoutConstraint(item: fileIndicatorView, attribute: NSLayoutAttribute.Leading, relatedBy: .Equal, toItem: self, attribute:NSLayoutAttribute.Leading, multiplier: 1, constant: 5)
+        let leadingAlignmentConstraint = NSLayoutConstraint(item: fileIndicatorView, attribute: NSLayoutAttribute.leading, relatedBy: .equal, toItem: self, attribute:NSLayoutAttribute.leading, multiplier: 1, constant: 5)
         self.addConstraint(leadingAlignmentConstraint)
         
-        let topAlignmentConstraint = NSLayoutConstraint(item: fileIndicatorView, attribute: NSLayoutAttribute.Top, relatedBy: .Equal, toItem: self, attribute:NSLayoutAttribute.Top, multiplier: 1, constant: 5)
+        let topAlignmentConstraint = NSLayoutConstraint(item: fileIndicatorView, attribute: NSLayoutAttribute.top, relatedBy: .equal, toItem: self, attribute:NSLayoutAttribute.top, multiplier: 1, constant: 5)
         self.addConstraint(topAlignmentConstraint)
         
 
         
-        let width = NSLayoutConstraint(item: fileIndicatorView, attribute: NSLayoutAttribute.Width, relatedBy:NSLayoutRelation.LessThanOrEqual, toItem: self, attribute:NSLayoutAttribute.Width, multiplier: 1, constant: -5)
+        let width = NSLayoutConstraint(item: fileIndicatorView, attribute: NSLayoutAttribute.width, relatedBy:NSLayoutRelation.lessThanOrEqual, toItem: self, attribute:NSLayoutAttribute.width, multiplier: 1, constant: -5)
         self.addConstraint(width)
 
 
@@ -306,8 +306,8 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
     private func initPlaceHolder(position:CGPoint,size:CGSize,text:String){
         placeHolder = UITextField(frame: CGRect(origin: position, size: size))
         placeHolder.placeholder = text
-        placeHolder.enabled = false
-        placeHolder.userInteractionEnabled = false
+        placeHolder.isEnabled = false
+        placeHolder.isUserInteractionEnabled = false
         placeHolder.font = self.font
         //do not add automatically the constraints
         placeHolder.translatesAutoresizingMaskIntoConstraints = false
@@ -317,18 +317,18 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
         //constraints
         
         // leading alignment
-        let leadingAlignmentConstraint = NSLayoutConstraint(item: placeHolder, attribute: NSLayoutAttribute.Leading, relatedBy: .Equal, toItem: self, attribute:NSLayoutAttribute.Leading, multiplier: 1, constant: 5 + self.textContainerInset.left)
+        let leadingAlignmentConstraint = NSLayoutConstraint(item: placeHolder, attribute: NSLayoutAttribute.leading, relatedBy: .equal, toItem: self, attribute:NSLayoutAttribute.leading, multiplier: 1, constant: 5 + self.textContainerInset.left)
         self.addConstraint(leadingAlignmentConstraint)
         
         // top
-        placeHolderTopDist = NSLayoutConstraint(item: placeHolder, attribute: NSLayoutAttribute.Top, relatedBy: .Equal, toItem: self, attribute: NSLayoutAttribute.Top, multiplier: 1, constant: self.textContainerInset.top/*8 + self.contentInset.top*/)
+        placeHolderTopDist = NSLayoutConstraint(item: placeHolder, attribute: NSLayoutAttribute.top, relatedBy: .equal, toItem: self, attribute: NSLayoutAttribute.top, multiplier: 1, constant: self.textContainerInset.top/*8 + self.contentInset.top*/)
         
         self.addConstraint(placeHolderTopDist)
 
     }
     
     private func showPlaceHolder(show:Bool){
-        placeHolder.hidden = !show
+        placeHolder.isHidden = !show
     }
 
     
@@ -337,17 +337,17 @@ public class JLCustomTextView: UITextView,FileIndicatorViewDelegate {
     private func registerTextViewNotifications(){
         
         //UITextViewTextDidChangeNotification
-        NSNotificationCenter.defaultCenter().addObserver(self, selector:#selector(JLCustomTextView.didChangeText(_:)), name: UITextViewTextDidChangeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(JLCustomTextView.didChangeText(_:)), name: NSNotification.Name.UITextViewTextDidChange, object: nil)
         
     }
     
-    func didChangeText(notification:NSNotification){
+    @objc func didChangeText(_ notification:NSNotification){
                         
         if thereIsSomeChar(){
-            showPlaceHolder(false)
+            showPlaceHolder(show: false)
         }
         else{
-            showPlaceHolder(true)
+            showPlaceHolder(show: true)
         }
         
     }

@@ -116,35 +116,35 @@ JLChatAppearence.configErrorButton(nil, selectedStateImage: nil)
 ##### *Adding new message*
     More information take a look on documentation
 ```swift
-public func addNewMessages(quant:Int,changesHandler:()->(),completionHandler:(()->())?)
+open func addNewMessages(quant:Int,changesHandler:()->(),completionHandler:(()->())?)
 ```
 
 
 ##### *Adding old messages*
 ```swift
-public func addOldMessages(quant:Int,changesHandler:()->())
+open func addOldMessages(quant:Int,changesHandler:()->())
 ```
 
 
 ##### *Removing one message cell*
 ```swift
-public func removeMessageCellAtIndexPath(indexPath:NSIndexPath,relatedMessage:JLMessage!)
+open func removeMessageCellAtIndexPath(indexPath:IndexPath,relatedMessage:JLMessage!)
 ```
 
 ##### *Removing one section(Date section or custom section)*
 ```swift
-public func removeChatSection(section:Int,messagesOfSection:[JLMessage]?)
+open func removeChatSection(section:Int,messagesOfSection:[JLMessage]?)
 ```
 
 ##### *Removing more than one message cell and or more than one section*
 ```swift
-public func removeMessagesCells(rowsIndexPath:[NSIndexPath]?,AndSections sections:[Int]?,WithRelatedMessages relatedMessages:[JLMessage]?)
+open func removeMessagesCells(rowsIndexPath:[IndexPath]?,AndSections sections:[Int]?,WithRelatedMessages relatedMessages:[JLMessage]?)
 ```
 
 
 ##### *Updating a message cell send status*
 ```swift
-public func updateMessageStatusOfCellAtIndexPath(indexPath:NSIndexPath,message:JLMessage)
+open func updateMessageStatusOfCellAtIndexPath(indexPath:IndexPath,message:JLMessage)
 ```
 ##### *Open your chat ViewController*
 
@@ -187,7 +187,7 @@ self.chatTableView.registerNib(UINib(nibName: "nib name", bundle: NSBundle.mainB
       implement the method of `ChatDataSource` that is for custom cells
   
 ```swift
-func chat(chat: JLChatTableView, customMessageCellForRowAtIndexPath indexPath: NSIndexPath) -> JLChatMessageCell {
+func chat(chat: JLChatTableView, customMessageCellForRowAtIndexPath indexPath: IndexPath) -> JLChatMessageCell {
 
 
       ...

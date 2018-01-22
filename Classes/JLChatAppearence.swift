@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class JLChatAppearence: NSObject {
+open class JLChatAppearence: NSObject {
     
    
     //MARK: - Incoming messages
@@ -22,7 +22,7 @@ public class JLChatAppearence: NSObject {
     
     static public private(set) var showIncomingSenderImage:Bool = true
     
-    static public private(set) var incomingTextColor:UIColor = UIColor.blackColor()
+    static public private(set) var incomingTextColor:UIColor = UIColor.black
     
     
     /**
@@ -33,26 +33,26 @@ public class JLChatAppearence: NSObject {
      */
     private class func generateBubbleImage(WithImage image:UIImage,Color color:UIColor, AndInsets edgesInsets:UIEdgeInsets)->UIImage{
         UIGraphicsBeginImageContext(image.size)
-        let context = UIGraphicsGetCurrentContext()
+        let context = UIGraphicsGetCurrentContext()!
         
         // flip the image
-        CGContextScaleCTM(context, 1.0, -1.0)
-        CGContextTranslateCTM(context, 0.0, -image.size.height)
+        context.scaleBy(x:1.0, y:-1.0)
+        context.translateBy(x: 0.0, y:-image.size.height)
         
         // multiply blend mode
-        CGContextSetBlendMode(context, CGBlendMode.Multiply)
+        context.setBlendMode(CGBlendMode.multiply)
         
         //fill rect with color
-        let rect = CGRectMake(0, 0, image.size.width, image.size.height)
-        CGContextClipToMask(context, rect, image.CGImage)
+        let rect = CGRect(origin: CGPoint(x:0, y:0), size: CGSize(width:image.size.width, height:image.size.height))
+        context.clip(to: rect, mask: image.cgImage!)
         color.setFill()
-        CGContextFillRect(context, rect)
+        context.fill(rect)
         
         // create uiimage
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         //apply cap insets
-        return newImage.resizableImageWithCapInsets(edgesInsets)
+        return newImage.resizableImage(withCapInsets: edgesInsets)
     }
     
     /**
@@ -67,25 +67,25 @@ public class JLChatAppearence: NSObject {
         let color = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
         
         UIGraphicsBeginImageContext(image.size)
-        let context = UIGraphicsGetCurrentContext()
+        let context = UIGraphicsGetCurrentContext()!
         
         // flip the image
-        CGContextScaleCTM(context, 1.0, -1.0)
-        CGContextTranslateCTM(context, 0.0, -image.size.height)
+        context.scaleBy(x:1.0, y:-1.0)
+        context.translateBy(x: 0.0, y: -image.size.height)
         
         // multiply blend mode
-        CGContextSetBlendMode(context, CGBlendMode.Multiply)
+        context.setBlendMode(CGBlendMode.multiply)
         
-        let rect = CGRectMake(0, 0, image.size.width, image.size.height)
-        CGContextClipToMask(context, rect, image.CGImage)
+        let rect = CGRect(origin: CGPoint(x:0, y:0), size: CGSize(width:image.size.width, height:image.size.height))
+        context.clip(to: rect, mask: image.cgImage!)
         color.setFill()
-        CGContextFillRect(context, rect)
+        context.fill(rect)
         
         // create uiimage
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         
-        return newImage.resizableImageWithCapInsets(edges)
+        return newImage.resizableImage(withCapInsets: edges)
     }
 
     /**
@@ -114,12 +114,12 @@ public class JLChatAppearence: NSObject {
         let edges = UIEdgeInsets(top: 16, left: 23, bottom: 16, right: 23)//UIEdgeInsets(top: 16, left: 28, bottom: 17, right: 16)
         
         if let bundle = JLBundleController.getBundle(){
-            let defaultIncomingBubble = UIImage(named: "bubble_min_incoming", inBundle: bundle, compatibleWithTraitCollection: nil)!
+            let defaultIncomingBubble = UIImage(named: "bubble_min_incoming", in: bundle, compatibleWith: nil)!
 
             incomingBubbleImage = generateBubbleImage(WithImage: defaultIncomingBubble,Color: self.incomingBubbleColor, AndInsets: edges)
             
             //mask
-            incomingBubbleImageMask = UIImage(named: "bubble_min_mask_incoming", inBundle: bundle, compatibleWithTraitCollection: nil)?.resizableImageWithCapInsets(edges)
+            incomingBubbleImageMask = UIImage(named: "bubble_min_mask_incoming", in: bundle, compatibleWith: nil)?.resizableImage(withCapInsets: edges)
             
             incomingBubbleLoadingImage = generateBubbleLoadingImage(WithBubleImage: defaultIncomingBubble, edges: edges)
         }
@@ -166,7 +166,7 @@ public class JLChatAppearence: NSObject {
         
         incomingBubbleImage = generateBubbleImage(WithImage: customBubble,Color: self.incomingBubbleColor, AndInsets: customBubbleInsets)
         //mask
-        incomingBubbleImageMask = bubbleImageMask.resizableImageWithCapInsets(bubbleMaskInsets)
+        incomingBubbleImageMask = bubbleImageMask.resizableImage(withCapInsets: bubbleMaskInsets)
         
         incomingBubbleLoadingImage = generateBubbleLoadingImage(WithBubleImage: customBubble, edges: customBubbleInsets)
 
@@ -185,7 +185,7 @@ public class JLChatAppearence: NSObject {
     
     static public private(set) var showOutgoingSenderImage:Bool = true
 
-    static public private(set) var outGoingTextColor:UIColor = UIColor.whiteColor()
+    static public private(set) var outGoingTextColor:UIColor = UIColor.white
     
     /**
      Call this method to configure the appearance of your outgoing messages.
@@ -212,12 +212,12 @@ public class JLChatAppearence: NSObject {
         let edges = UIEdgeInsets(top: 16, left: 23, bottom: 16, right: 23)//UIEdgeInsets(top: 16, left: 28, bottom: 17, right: 16)
         
         if let bundle = JLBundleController.getBundle(){
-            
-            let defaultOutgoingBubble = UIImage(named: "bubble_min", inBundle: bundle, compatibleWithTraitCollection: nil)!
+
+            let defaultOutgoingBubble = UIImage(named: "bubble_min", in: bundle, compatibleWith: nil)!
             
             outgoingBubbleImage = generateBubbleImage(WithImage: defaultOutgoingBubble, Color: self.outgoingBubbleColor, AndInsets: edges)
             //mask
-            outgoingBubbleImageMask = UIImage(named: "bubble_min_mask", inBundle: bundle, compatibleWithTraitCollection: nil)?.resizableImageWithCapInsets(edges)
+            outgoingBubbleImageMask = UIImage(named: "bubble_min_mask", in: bundle, compatibleWith: nil)?.resizableImage(withCapInsets: edges)
             
             outgoingBubbleLoadingImage = generateBubbleLoadingImage(WithBubleImage: defaultOutgoingBubble, edges: edges)
 
@@ -265,7 +265,7 @@ public class JLChatAppearence: NSObject {
         outgoingBubbleImage = generateBubbleImage(WithImage: customBubble, Color: self.outgoingBubbleColor, AndInsets: customBubbleInsets)
         
         //mask
-        outgoingBubbleImageMask = bubbleImageMask!.resizableImageWithCapInsets(bubbleMaskInsets)
+        outgoingBubbleImageMask = bubbleImageMask!.resizableImage(withCapInsets: bubbleMaskInsets)
         
         outgoingBubbleLoadingImage = generateBubbleLoadingImage(WithBubleImage: customBubble, edges: customBubbleInsets)
         
@@ -277,7 +277,7 @@ public class JLChatAppearence: NSObject {
     
     static public private(set) var senderImageCornerRadius:CGFloat = 15
     
-    static public private(set) var senderImageBackgroundColor:UIColor = UIColor.lightGrayColor()
+    static public private(set) var senderImageBackgroundColor:UIColor = UIColor.lightGray
     
     static public private(set) var senderImageDefaultImage:UIImage?
     
@@ -363,8 +363,8 @@ public class JLChatAppearence: NSObject {
      - parameter shouldShowMessageDateAtIndexPath: A block with what is necessary to determine when present the date of the message.
      */
 
-    @available(*,deprecated,renamed="configChatFont(font:UIFont?,useCustomDateView:Bool)",message="This method is deprecated use configChatFont(font:UIFont?,useCustomDateView:Bool) instead")
-    public class func configChatFont(font:UIFont?,shouldShowMessageDateAtIndexPath:((indexPath:NSIndexPath)->Bool)?){
+    @available(*,deprecated,renamed: "configChatFont(font:useCustomDateView:)",message: "This method is deprecated use configChatFont(font:useCustomDateView:) instead")
+    public class func configChatFont(font:UIFont?,shouldShowMessageDateAtIndexPath:((_ indexPath:IndexPath)->Bool)?){
         
         /*if let font = font{
             chatFont = font
@@ -373,7 +373,7 @@ public class JLChatAppearence: NSObject {
             self.shouldShowMessageDateAtIndexPath = dateBlock
         }*/
         if let font = font{
-            configChatFont(font)
+            configChatFont(font: font)
         }
     }
     
@@ -409,7 +409,7 @@ public class JLChatAppearence: NSObject {
                 normalStateErrorButtonImage = img
             }
             else{
-                normalStateErrorButtonImage = UIImage(named: "alert9Normal", inBundle: bundle, compatibleWithTraitCollection: nil)!
+                normalStateErrorButtonImage = UIImage(named: "alert9Normal", in: bundle, compatibleWith: nil)!
             }
             
             
@@ -417,7 +417,7 @@ public class JLChatAppearence: NSObject {
                 selectedStateErrorButtonImage = img
             }
             else{
-                selectedStateErrorButtonImage = UIImage(named: "alert9Selected", inBundle: bundle, compatibleWithTraitCollection: nil)!
+                selectedStateErrorButtonImage = UIImage(named: "alert9Selected", in: bundle, compatibleWith: nil)!
             }
             
         }

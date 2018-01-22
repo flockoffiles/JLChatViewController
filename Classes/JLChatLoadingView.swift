@@ -8,7 +8,7 @@
 
 import UIKit
 
-class JLChatLoadingView: UIView {
+open class JLChatLoadingView: UIView {
 
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     

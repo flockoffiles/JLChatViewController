@@ -14,10 +14,10 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = 'DD0BDCD7621107E003780EFE'
-               BlueprintName = 'Pods-JLChatViewController_Example'
+               BlueprintIdentifier = '901ADF3A146F6056B9ABD893C8F59C14'
+               BlueprintName = 'JLChatViewController-JLChatViewController'
                ReferencedContainer = 'container:Pods.xcodeproj'
-               BuildableName = 'Pods_JLChatViewController_Example.framework'>
+               BuildableName = 'JLChatViewController.bundle'>
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
